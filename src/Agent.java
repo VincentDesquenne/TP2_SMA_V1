@@ -1,4 +1,7 @@
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
 
 public class Agent {
     private double k_plus;
@@ -6,42 +9,67 @@ public class Agent {
     private int pas;
     private Environnement environnement;
     private String object;
+    private ArrayDeque<String> memoire;
+    private int tailleMemoire;
 
-    public Agent(double k_plus, double k_moins, int pas, Environnement environnement){
+    public Agent(double k_plus, double k_moins, int pas, int taille, Environnement environnement) {
         this.k_plus = k_plus;
         this.k_moins = k_moins;
         this.pas = pas;
         this.environnement = environnement;
+        this.object = "";
+        this.memoire = new ArrayDeque<>();
+        this.tailleMemoire = taille;
     }
 
-    public void action(){
+    public void action() {
         Random rand = new Random();
-        int intDirection = rand.nextInt(8);
-        Direction direction = intToDirection(intDirection);
-        int[] coord = this.environnement.perception(this, direction);
-        this.environnement.deplacement(this, coord, direction);
+        ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this);
+        int dir = rand.nextInt(directions.size());
+        this.deplacer(directions.get(dir));
+        if (this.object == "") {
+            this.prise();
+        } else {
+            this.depot();
+        }
     }
 
-    public Direction intToDirection(int direction){
-        switch(direction){
-            case 0:
-                return Direction.UPPER_LEFT;
-            case 1:
-                return Direction.UPPER;
-            case 2:
-                return Direction.UPPER_RIGHT;
-            case 3:
-                return Direction.RIGHT;
-            case 4:
-                return Direction.LOWER_RIGHT;
-            case 5:
-                return Direction.LOWER;
-            case 6:
-                return Direction.LOWER_LEFT;
-            case 7:
-                return Direction.LEFT;
+    public void deplacer(Direction direction) {
+        this.environnement.deplacement(this, direction);
+    }
+
+    public void prise() {
+        String object = this.environnement.perceptionPrise(this);
+        if (object != "0") {
+            double f = this.calculerF(object);
+            double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2);
+            if (Math.random() < pPrise) {
+                this.object = object;
+                this.environnement.prise(this);
+            }
         }
-        return Direction.NONE;
+    }
+
+    public void depot() {
+        String object = this.environnement.perceptionDepot(this);
+        if (object == "0") {
+            double f = this.calculerF(this.object);
+            double pPrise = Math.pow(this.k_moins / (this.k_moins + f), 2);
+            if (Math.random() < pPrise) {
+                this.environnement.depot(this, this.object);
+                this.object = "";
+            }
+        }
+    }
+
+    public double calculerF(String object) {
+        int nbObj = 0;
+        for (int i = 0; i < memoire.size(); i++) {
+            if (memoire.toArray()[i] == object) {
+                nbObj++;
+            }
+        }
+        return nbObj / memoire.size();
     }
 
     public double getK_plus() {
@@ -66,5 +94,12 @@ public class Agent {
 
     public void setPas(int pas) {
         this.pas = pas;
+    }
+
+    public void ajouterMemoire(String objet) {
+        if (this.memoire.size() == this.tailleMemoire) {
+            this.memoire.removeFirst();
+        }
+        this.memoire.addLast(objet);
     }
 }
