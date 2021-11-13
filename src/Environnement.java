@@ -49,10 +49,10 @@ public class Environnement {
 
     }
 
-    public ArrayList<Direction> perceptionSeDeplacer(Agent agent) {
+    public ArrayList<Direction> perceptionSeDeplacer(Agent agent, int pas) {
         int[] coord = this.agents.get(agent);
         //this.grid[coord[0]][coord[1]] = "0";
-        return this.possibleMoves(agent, coord);
+        return this.possibleMoves(agent, coord, pas);
     }
 
     public String perceptionPrise(Agent agent){
@@ -65,40 +65,40 @@ public class Environnement {
         return this.grid[coord[0]][coord[1]];
     }
 
-    public ArrayList<Direction> possibleMoves(Agent agent, int[] coord) {
+    public ArrayList<Direction> possibleMoves(Agent agent, int[] coord, int pas) {
         ArrayList<Direction> directions = new ArrayList<>();
-        if (coord[0] >= 1) {
-            if(this.grid[coord[0]-1][coord[1]] != "a"){
+        if (coord[0] >= pas) {
+            if(this.grid[coord[0]-pas][coord[1]] != "a"){
                 directions.add(Direction.UPPER);
             }
-            if (coord[1] >= 1) {
-                if(this.grid[coord[0]-1][coord[1]-1] != "a"){
+            if (coord[1] >= pas) {
+                if(this.grid[coord[0]-pas][coord[1]-pas] != "a"){
                     directions.add(Direction.UPPER_LEFT);
                 }
-                if(this.grid[coord[0]][coord[1]-1] != "a"){
+                if(this.grid[coord[0]][coord[1]-pas] != "a"){
                     directions.add(Direction.LEFT);
                 }
             }
-            if (coord[1] <= this.grid[0].length - 2) {
-                if(this.grid[coord[0]-1][coord[1]+1] != "a"){
+            if (coord[1] <= this.grid[0].length - (pas + 1)) {
+                if(this.grid[coord[0]-pas][coord[1]+pas] != "a"){
                     directions.add(Direction.UPPER_RIGHT);
                 }
-                if(this.grid[coord[0]][coord[1]+1] != "a"){
+                if(this.grid[coord[0]][coord[1]+pas] != "a"){
                     directions.add(Direction.RIGHT);
                 }
             }
         }
-        if (coord[0] <= this.grid.length - 2) {
-            if(this.grid[coord[0]+1][coord[1]] != "a"){
+        if (coord[0] <= this.grid.length - (pas + 1)) {
+            if(this.grid[coord[0]+pas][coord[1]] != "a"){
                 directions.add(Direction.LOWER);
             }
-            if (coord[1] <= this.grid[0].length - 2) {
-                if(this.grid[coord[0]+1][coord[1]+1] != "a"){
+            if (coord[1] <= this.grid[0].length - (pas + 1)) {
+                if(this.grid[coord[0]+pas][coord[1]+pas] != "a"){
                     directions.add(Direction.LOWER_RIGHT);
                 }
             }
-            if (coord[1] >= 1) {
-                if(this.grid[coord[0]+1][coord[1]-1] != "a"){
+            if (coord[1] >= pas) {
+                if(this.grid[coord[0]+pas][coord[1]-pas] != "a"){
                     directions.add(Direction.LOWER_LEFT);
                 }
             }
@@ -116,42 +116,42 @@ public class Environnement {
         this.grid[coord[0]][coord[1]] = object;
     }
 
-    public void deplacement(Agent agent, Direction direction) {
+    public void deplacement(Agent agent, Direction direction, int pas) {
         int[] coord = this.agents.get(agent);
         agent.ajouterMemoire(this.grid[coord[0]][coord[1]]);
         int[] newCoord = new int[2];
         switch (direction) {
             case UPPER_LEFT:
-                newCoord[0] = coord[0] - 1;
-                newCoord[1] = coord[1] - 1;
+                newCoord[0] = coord[0] - pas;
+                newCoord[1] = coord[1] - pas;
                 break;
             case UPPER:
-                newCoord[0] = coord[0] - 1;
+                newCoord[0] = coord[0] - pas;
                 newCoord[1] = coord[1];
                 break;
             case UPPER_RIGHT:
-                newCoord[0] = coord[0] - 1;
-                newCoord[1] = coord[1] + 1;
+                newCoord[0] = coord[0] - pas;
+                newCoord[1] = coord[1] + pas;
                 break;
             case RIGHT:
                 newCoord[0] = coord[0];
-                newCoord[1] = coord[1] + 1;
+                newCoord[1] = coord[1] + pas;
                 break;
             case LOWER_RIGHT:
-                newCoord[0] = coord[0] + 1;
-                newCoord[1] = coord[1] + 1;
+                newCoord[0] = coord[0] + pas;
+                newCoord[1] = coord[1] + pas;
                 break;
             case LOWER:
-                newCoord[0] = coord[0] + 1;
+                newCoord[0] = coord[0] + pas;
                 newCoord[1] = coord[1];
                 break;
             case LOWER_LEFT:
-                newCoord[0] = coord[0] + 1;
-                newCoord[1] = coord[1] - 1;
+                newCoord[0] = coord[0] + pas;
+                newCoord[1] = coord[1] - pas;
                 break;
             case LEFT:
                 newCoord[0] = coord[0];
-                newCoord[1] = coord[1] - 1;
+                newCoord[1] = coord[1] - pas;
                 break;
         }
         this.agents.put(agent, newCoord);

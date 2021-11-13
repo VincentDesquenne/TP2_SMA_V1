@@ -24,7 +24,7 @@ public class Agent {
 
     public void action() {
         Random rand = new Random();
-        ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this);
+        ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this, pas);
         int dir = rand.nextInt(directions.size());
         this.deplacer(directions.get(dir));
         if (this.object == "") {
@@ -35,7 +35,7 @@ public class Agent {
     }
 
     public void deplacer(Direction direction) {
-        this.environnement.deplacement(this, direction);
+        this.environnement.deplacement(this, direction, pas);
     }
 
     public void prise() {
@@ -69,7 +69,7 @@ public class Agent {
                 nbObj++;
             }
         }
-        return nbObj / memoire.size();
+        return (double) nbObj / (double) memoire.size();
     }
 
     public double getK_plus() {

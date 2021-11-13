@@ -11,7 +11,7 @@ public class Main {
         Agent[] agentsTab = new Agent[agents.size()];
         agents.toArray(agentsTab);
         Random rand = new Random();
-        for(int i=0; i<1000; i++){
+        for(int i=0; i<100000; i++){
             Agent agent = agentsTab[rand.nextInt(agentsTab.length)];
             agent.action();
             System.out.println(env);
