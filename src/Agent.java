@@ -43,7 +43,7 @@ public class Agent {
         if (object != "0") {
             double f = this.calculerF(object);
             double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2);
-            if (Math.random() < pPrise) {
+            if (Math.random() <= pPrise) {
                 this.object = object;
                 this.environnement.prise(this);
             }
@@ -54,8 +54,8 @@ public class Agent {
         String object = this.environnement.perceptionDepot(this);
         if (object == "0") {
             double f = this.calculerF(this.object);
-            double pPrise = Math.pow(this.k_moins / (this.k_moins + f), 2);
-            if (Math.random() < pPrise) {
+            double pDepot = Math.pow(this.k_moins / (this.k_moins + f), 2);
+            if (Math.random() <= pDepot) {
                 this.environnement.depot(this, this.object);
                 this.object = "";
             }
@@ -69,6 +69,7 @@ public class Agent {
                 nbObj++;
             }
         }
+        System.out.println((double) nbObj / (double) memoire.size());
         return (double) nbObj / (double) memoire.size();
     }
 

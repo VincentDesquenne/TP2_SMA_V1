@@ -1,6 +1,11 @@
+import java.awt.*;
 import java.util.*;
 
-public class Environnement {
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+public class Environnement extends JPanel{
     private String[][] grid;
     private HashMap<Agent, int[]> agents = new HashMap<>();
 
@@ -37,12 +42,11 @@ public class Environnement {
             nAleatoire = rand.nextInt(n);
             mAleatoire = rand.nextInt(m);
             if (grid[nAleatoire][mAleatoire] == "0") {
-                Agent agent = new Agent(k_plus, k_moins, pas, taille,this);
+                Agent agent = new Agent(k_plus, k_moins, pas, taille, this);
                 int[] tab = new int[2];
                 tab[0] = nAleatoire;
                 tab[1] = mAleatoire;
                 this.agents.put(agent, tab);
-                //grid[nAleatoire][mAleatoire] = "a";
                 agents++;
             }
         }
@@ -55,12 +59,12 @@ public class Environnement {
         return this.possibleMoves(agent, coord, pas);
     }
 
-    public String perceptionPrise(Agent agent){
+    public String perceptionPrise(Agent agent) {
         int[] coord = this.agents.get(agent);
         return this.grid[coord[0]][coord[1]];
     }
 
-    public String perceptionDepot(Agent agent){
+    public String perceptionDepot(Agent agent) {
         int[] coord = this.agents.get(agent);
         return this.grid[coord[0]][coord[1]];
     }
@@ -68,50 +72,34 @@ public class Environnement {
     public ArrayList<Direction> possibleMoves(Agent agent, int[] coord, int pas) {
         ArrayList<Direction> directions = new ArrayList<>();
         if (coord[0] >= pas) {
-            if(this.grid[coord[0]-pas][coord[1]] != "a"){
-                directions.add(Direction.UPPER);
-            }
+            directions.add(Direction.UPPER);
             if (coord[1] >= pas) {
-                if(this.grid[coord[0]-pas][coord[1]-pas] != "a"){
-                    directions.add(Direction.UPPER_LEFT);
-                }
-                if(this.grid[coord[0]][coord[1]-pas] != "a"){
-                    directions.add(Direction.LEFT);
-                }
+                directions.add(Direction.UPPER_LEFT);
+                directions.add(Direction.LEFT);
             }
             if (coord[1] <= this.grid[0].length - (pas + 1)) {
-                if(this.grid[coord[0]-pas][coord[1]+pas] != "a"){
-                    directions.add(Direction.UPPER_RIGHT);
-                }
-                if(this.grid[coord[0]][coord[1]+pas] != "a"){
-                    directions.add(Direction.RIGHT);
-                }
+                directions.add(Direction.UPPER_RIGHT);
+                directions.add(Direction.RIGHT);
             }
         }
         if (coord[0] <= this.grid.length - (pas + 1)) {
-            if(this.grid[coord[0]+pas][coord[1]] != "a"){
-                directions.add(Direction.LOWER);
-            }
+            directions.add(Direction.LOWER);
             if (coord[1] <= this.grid[0].length - (pas + 1)) {
-                if(this.grid[coord[0]+pas][coord[1]+pas] != "a"){
-                    directions.add(Direction.LOWER_RIGHT);
-                }
+                directions.add(Direction.LOWER_RIGHT);
             }
             if (coord[1] >= pas) {
-                if(this.grid[coord[0]+pas][coord[1]-pas] != "a"){
-                    directions.add(Direction.LOWER_LEFT);
-                }
+                directions.add(Direction.LOWER_LEFT);
             }
         }
         return directions;
     }
 
-    public void prise(Agent agent){
+    public void prise(Agent agent) {
         int[] coord = this.agents.get(agent);
         this.grid[coord[0]][coord[1]] = "0";
     }
 
-    public void depot(Agent agent, String object){
+    public void depot(Agent agent, String object) {
         int[] coord = this.agents.get(agent);
         this.grid[coord[0]][coord[1]] = object;
     }
@@ -154,21 +142,99 @@ public class Environnement {
                 newCoord[1] = coord[1] - pas;
                 break;
         }
-        this.agents.put(agent, newCoord);
+        this.agents.get(agent)[0] = newCoord[0];
+        this.agents.get(agent)[1] = newCoord[1];
 
     }
 
     @Override
     public String toString() {
         String res = "Environnement :";
+        int[] tab = new int[2];
+        boolean agentHere = false;
         for (int i = 0; i < grid.length; i++) {
             res += "\n";
             for (int j = 0; j < grid[0].length; j++) {
-                res += grid[i][j] + "  ";
+                agentHere = false;
+                tab[0] = i;
+                tab[1] = j;
+                for(int k=0; k<this.agents.values().size(); k++){
+                    if(Arrays.equals((int[])this.agents.values().toArray()[k],tab)){
+                        agentHere = true;
+                        break;
+                    }
+                }
+                if(agentHere){
+                    res+= grid[i][j] + "a ";
+                } else {
+                    res += grid[i][j] + "  ";
+                }
             }
         }
         return res;
     }
+
+
+    public String toString(int[] coord) {
+        String res = "Environnement :";
+        int[] tab = new int[2];
+        boolean agentHere = false;
+        boolean agentActif = false;
+        for (int i = 0; i < grid.length; i++) {
+            res += "\n";
+            for (int j = 0; j < grid[0].length; j++) {
+                agentHere = false;
+                agentActif = false;
+                tab[0] = i;
+                tab[1] = j;
+                for(int k=0; k<this.agents.values().size(); k++){
+                    if(Arrays.equals(coord, tab)){
+                        agentActif = true;
+                        break;
+                    }
+                    if(Arrays.equals((int[])this.agents.values().toArray()[k],tab)){
+                        agentHere = true;
+                        break;
+                    }
+                }
+                if(agentActif){
+                    res+= grid[i][j] + "a* ";
+                }
+                else if(agentHere){
+                    res+= grid[i][j] + "a ";
+                } else {
+                    res += grid[i][j] + "  ";
+                }
+            }
+        }
+        return res;
+    }
+
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(new BasicStroke(4));
+        for (int i = 0; i < grid.length; i++) {
+            for(int j=0; j < grid[i].length; j++){
+                Dimension size = getSize();
+                int w = size.width ;
+                int h = size.height;
+                if(grid[i][j] == "A"){
+                    g2d.setColor(Color.red);
+                    int x = j * w / grid.length;
+                    int y = i * h / grid[0].length;
+                    g2d.drawLine(x, y, x, y);
+                }
+                else if(grid[i][j] == "B"){
+                    g2d.setColor(Color.blue);
+                    int x = j * w / grid.length;
+                    int y = i * h / grid[0].length;
+                    g2d.drawLine(x, y, x, y);
+                }
+            }
+        }
+    }
+
 
     public String[][] getGrid() {
         return grid;
