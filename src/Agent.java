@@ -54,7 +54,7 @@ public class Agent {
         String object = this.environnement.perceptionDepot(this);
         if (object == "0") {
             double f = this.calculerF(this.object);
-            double pDepot = Math.pow(this.k_moins / (this.k_moins + f), 2);
+            double pDepot = Math.pow(f / (this.k_moins + f), 2);
             if (Math.random() <= pDepot) {
                 this.environnement.depot(this, this.object);
                 this.object = "";
@@ -64,14 +64,19 @@ public class Agent {
 
     public double calculerF(String object) {
         int nbObj = 0;
+        int nbObjOpp = 0;
         for (int i = 0; i < memoire.size(); i++) {
             if (memoire.toArray()[i] == object) {
                 nbObj++;
             }
+            else if(memoire.toArray()[i] != "0"){
+                nbObjOpp++;
+            }
         }
-        System.out.println((double) nbObj / (double) memoire.size());
+        double res = (double) nbObj +  (double) nbObjOpp*this.environnement.getTauxErreur();
         return (double) nbObj / (double) memoire.size();
     }
+
 
     public double getK_plus() {
         return k_plus;

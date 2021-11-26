@@ -8,14 +8,16 @@ import javax.swing.JPanel;
 public class Environnement extends JPanel{
     private String[][] grid;
     private HashMap<Agent, int[]> agents = new HashMap<>();
+    private double tauxErreur;
 
-    public Environnement(int n, int m, int nbA, int nbB, int nbAgents, double k_plus, double k_moins, int taille, int pas) {
+    public Environnement(int n, int m, int nbA, int nbB, int nbAgents, double k_plus, double k_moins, int taille, int pas, double tauxErreur) {
         grid = new String[n][m];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 grid[i][j] = "0";
             }
         }
+        this.tauxErreur = tauxErreur;
         int aGrid = 0;
         int bGrid = 0;
         int agents = 0;
@@ -250,5 +252,13 @@ public class Environnement extends JPanel{
 
     public void setAgents(HashMap<Agent, int[]> agents) {
         this.agents = agents;
+    }
+
+    public double getTauxErreur() {
+        return tauxErreur;
+    }
+
+    public void setTauxErreur(double tauxErreur) {
+        this.tauxErreur = tauxErreur;
     }
 }
