@@ -22,59 +22,61 @@ public class Agent {
         this.tailleMemoire = taille;
     }
 
-    public void action() {
+    public void action() { //action de l'agent
         Random rand = new Random();
-        ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this, pas);
+        ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this, pas); //appel à l'environnement
         int dir = rand.nextInt(directions.size());
-        this.deplacer(directions.get(dir));
-        if (this.object == "") {
+        this.deplacer(directions.get(dir)); //déplacement
+        if (this.object == "") { //action prise ou dépot selon objet porté
             this.prise();
         } else {
             this.depot();
         }
     }
 
-    public void deplacer(Direction direction) {
-        this.environnement.deplacement(this, direction, pas);
+    public void deplacer(Direction direction) { //déplacement
+        for(int i=0; i<pas;i++){
+            this.environnement.deplacement(this, direction);
+        }
     }
 
-    public void prise() {
-        String object = this.environnement.perceptionPrise(this);
-        if (object != "0") {
-            double f = this.calculerF(object);
-            double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2);
+    public void prise() { //action prise
+        String object = this.environnement.perceptionPrise(this); //appel à l'environnement
+        if (object != "0") { //si la case contient un objet
+            double f = this.calculerF(object); //calcul de F
+            double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2); //calcul de la probabilité de prise
             if (Math.random() <= pPrise) {
                 this.object = object;
-                this.environnement.prise(this);
+                this.environnement.prise(this); //action de prise de l'objet
             }
         }
     }
 
-    public void depot() {
-        String object = this.environnement.perceptionDepot(this);
-        if (object == "0") {
-            double f = this.calculerF(this.object);
-            double pDepot = Math.pow(f / (this.k_moins + f), 2);
+    public void depot() { //action depot
+        String object = this.environnement.perceptionDepot(this); //appel à l'environnement
+        if (object == "0") { //si la case ne contient pas d'objet
+            double f = this.calculerF(this.object); //calcul de F
+            double pDepot = Math.pow(f / (this.k_moins + f), 2); //calcul de la probabilité de dépot
             if (Math.random() <= pDepot) {
-                this.environnement.depot(this, this.object);
+                this.environnement.depot(this, this.object); //action de dépot
                 this.object = "";
             }
         }
     }
 
-    public double calculerF(String object) {
+    public double calculerF(String object) { //calcul de F
         int nbObj = 0;
         int nbObjOpp = 0;
-        for (int i = 0; i < memoire.size(); i++) {
+        for (int i = 0; i < memoire.size(); i++) { //calcul de la fréquence de l'objet en paramètre dans la mémoire
             if (memoire.toArray()[i] == object) {
                 nbObj++;
             }
             else if(memoire.toArray()[i] != "0"){
-                nbObjOpp++;
+                nbObjOpp++; //calcul de la fréquence de l'objet opposé en paramètre dans la mémoire pour ajouter le taux d'erreur
             }
         }
         double res = (double) nbObj +  (double) nbObjOpp*this.environnement.getTauxErreur();
-        return (double) nbObj / (double) memoire.size();
+        return res / (double) memoire.size();
     }
 
 
@@ -102,10 +104,10 @@ public class Agent {
         this.pas = pas;
     }
 
-    public void ajouterMemoire(String objet) {
+    public void ajouterMemoire(String objet) { //méthode d'ajout à la mémoire
         if (this.memoire.size() == this.tailleMemoire) {
-            this.memoire.removeFirst();
+            this.memoire.removeFirst(); //si la taille de la mémoire est maximale, on enlève la plus ancienne case parcourue de la mémoire
         }
-        this.memoire.addLast(objet);
+        this.memoire.addLast(objet); //on ajoute la nouvelle case à la mémoire
     }
 }

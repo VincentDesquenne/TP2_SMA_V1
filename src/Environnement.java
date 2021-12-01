@@ -12,7 +12,7 @@ public class Environnement extends JPanel{
 
     public Environnement(int n, int m, int nbA, int nbB, int nbAgents, double k_plus, double k_moins, int taille, int pas, double tauxErreur) {
         grid = new String[n][m];
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) { //initialisation de la grille
             for (int j = 0; j < m; j++) {
                 grid[i][j] = "0";
             }
@@ -24,7 +24,7 @@ public class Environnement extends JPanel{
         Random rand = new Random();
         int nAleatoire = 0;
         int mAleatoire = 0;
-        while (aGrid != nbA) {
+        while (aGrid != nbA) { //remplissage de la grille avec les objets A
             nAleatoire = rand.nextInt(n);
             mAleatoire = rand.nextInt(m);
             if (grid[nAleatoire][mAleatoire] == "0") {
@@ -32,7 +32,7 @@ public class Environnement extends JPanel{
                 aGrid++;
             }
         }
-        while (bGrid != nbB) {
+        while (bGrid != nbB) { //remplissage de la grille avec les objets B
             nAleatoire = rand.nextInt(n);
             mAleatoire = rand.nextInt(m);
             if (grid[nAleatoire][mAleatoire] == "0") {
@@ -40,7 +40,7 @@ public class Environnement extends JPanel{
                 bGrid++;
             }
         }
-        while (agents != nbAgents) {
+        while (agents != nbAgents) { //remplissage de la grille avec les agents
             nAleatoire = rand.nextInt(n);
             mAleatoire = rand.nextInt(m);
             if (grid[nAleatoire][mAleatoire] == "0") {
@@ -55,23 +55,23 @@ public class Environnement extends JPanel{
 
     }
 
-    public ArrayList<Direction> perceptionSeDeplacer(Agent agent, int pas) {
+    public ArrayList<Direction> perceptionSeDeplacer(Agent agent, int pas) { //réponse de l'environnement à l'agent pour le déplacement
         int[] coord = this.agents.get(agent);
         //this.grid[coord[0]][coord[1]] = "0";
-        return this.possibleMoves(agent, coord, pas);
+        return this.possibleMoves(agent, coord, pas); //renvoie les déplacements possibles
     }
 
-    public String perceptionPrise(Agent agent) {
+    public String perceptionPrise(Agent agent) { //réponse de l'environnement à l'agent pour la prise d'objet
         int[] coord = this.agents.get(agent);
-        return this.grid[coord[0]][coord[1]];
+        return this.grid[coord[0]][coord[1]]; //renvoie l'objet présent sur la case de l'agent
     }
 
-    public String perceptionDepot(Agent agent) {
+    public String perceptionDepot(Agent agent) { //réponse de l'environnement à l'agent pour le dépôt d'objet
         int[] coord = this.agents.get(agent);
-        return this.grid[coord[0]][coord[1]];
+        return this.grid[coord[0]][coord[1]]; //renvoie l'objet présent sur la case de l'agent
     }
 
-    public ArrayList<Direction> possibleMoves(Agent agent, int[] coord, int pas) {
+    public ArrayList<Direction> possibleMoves(Agent agent, int[] coord, int pas) { //fonctions qui détermine les déplacements possibles de l'agent
         ArrayList<Direction> directions = new ArrayList<>();
         if (coord[0] >= pas) {
             directions.add(Direction.UPPER);
@@ -96,52 +96,52 @@ public class Environnement extends JPanel{
         return directions;
     }
 
-    public void prise(Agent agent) {
+    public void prise(Agent agent) { //modification de la grille après action prise de l'agent
         int[] coord = this.agents.get(agent);
         this.grid[coord[0]][coord[1]] = "0";
     }
 
-    public void depot(Agent agent, String object) {
+    public void depot(Agent agent, String object) { //modification de la grille après action dépôt de l'agent
         int[] coord = this.agents.get(agent);
         this.grid[coord[0]][coord[1]] = object;
     }
 
-    public void deplacement(Agent agent, Direction direction, int pas) {
+    public void deplacement(Agent agent, Direction direction) { //modification de la grille après déplacement de l'agent
         int[] coord = this.agents.get(agent);
-        agent.ajouterMemoire(this.grid[coord[0]][coord[1]]);
+        agent.ajouterMemoire(this.grid[coord[0]][coord[1]]); //ajout de la case précédente à la mémoire de l'agent
         int[] newCoord = new int[2];
         switch (direction) {
             case UPPER_LEFT:
-                newCoord[0] = coord[0] - pas;
-                newCoord[1] = coord[1] - pas;
+                newCoord[0] = coord[0] - 1;
+                newCoord[1] = coord[1] - 1;
                 break;
             case UPPER:
-                newCoord[0] = coord[0] - pas;
+                newCoord[0] = coord[0] - 1;
                 newCoord[1] = coord[1];
                 break;
             case UPPER_RIGHT:
-                newCoord[0] = coord[0] - pas;
-                newCoord[1] = coord[1] + pas;
+                newCoord[0] = coord[0] - 1;
+                newCoord[1] = coord[1] + 1;
                 break;
             case RIGHT:
                 newCoord[0] = coord[0];
-                newCoord[1] = coord[1] + pas;
+                newCoord[1] = coord[1] + 1;
                 break;
             case LOWER_RIGHT:
-                newCoord[0] = coord[0] + pas;
-                newCoord[1] = coord[1] + pas;
+                newCoord[0] = coord[0] + 1;
+                newCoord[1] = coord[1] + 1;
                 break;
             case LOWER:
-                newCoord[0] = coord[0] + pas;
+                newCoord[0] = coord[0] + 1;
                 newCoord[1] = coord[1];
                 break;
             case LOWER_LEFT:
-                newCoord[0] = coord[0] + pas;
-                newCoord[1] = coord[1] - pas;
+                newCoord[0] = coord[0] + 1;
+                newCoord[1] = coord[1] - 1;
                 break;
             case LEFT:
                 newCoord[0] = coord[0];
-                newCoord[1] = coord[1] - pas;
+                newCoord[1] = coord[1] - 1;
                 break;
         }
         this.agents.get(agent)[0] = newCoord[0];
@@ -150,7 +150,7 @@ public class Environnement extends JPanel{
     }
 
     @Override
-    public String toString() {
+    public String toString() { //affichage de la grille
         String res = "Environnement :";
         int[] tab = new int[2];
         boolean agentHere = false;
@@ -176,43 +176,7 @@ public class Environnement extends JPanel{
         return res;
     }
 
-
-    public String toString(int[] coord) {
-        String res = "Environnement :";
-        int[] tab = new int[2];
-        boolean agentHere = false;
-        boolean agentActif = false;
-        for (int i = 0; i < grid.length; i++) {
-            res += "\n";
-            for (int j = 0; j < grid[0].length; j++) {
-                agentHere = false;
-                agentActif = false;
-                tab[0] = i;
-                tab[1] = j;
-                for(int k=0; k<this.agents.values().size(); k++){
-                    if(Arrays.equals(coord, tab)){
-                        agentActif = true;
-                        break;
-                    }
-                    if(Arrays.equals((int[])this.agents.values().toArray()[k],tab)){
-                        agentHere = true;
-                        break;
-                    }
-                }
-                if(agentActif){
-                    res+= grid[i][j] + "a* ";
-                }
-                else if(agentHere){
-                    res+= grid[i][j] + "a ";
-                } else {
-                    res += grid[i][j] + "  ";
-                }
-            }
-        }
-        return res;
-    }
-
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) { //interface graphique
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(4));
