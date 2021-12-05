@@ -1,8 +1,5 @@
 import javax.swing.*;
-import java.util.Collections;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 
 public class Main extends JPanel {
@@ -10,21 +7,106 @@ public class Main extends JPanel {
 
         Scanner reader = new Scanner(System.in);  // Reading from System.in
 
-        System.out.println("Entrer la largeur et la longueur de la grille");
-        int n = reader.nextInt();
-        System.out.println("Entrer le nombre d'objets A et B");
-        int n2 = reader.nextInt();
-        System.out.println("Entrer le nombre d'agents");
-        int nbAgents = reader.nextInt();
-        System.out.println("Entrer la valeur de k plus (avec virgule)");
-        double k_plus = reader.nextDouble();
-        System.out.println("Entrer la valeur de k moins (avec virgule)");
-        double k_moins = reader.nextDouble();
-        System.out.println("Entrer le taux d'erreur (avec virgule)");
-        double tauxErreur = reader.nextDouble();
-        System.out.println("Entrer le nombre d'itérations");
-        int nbIterations = reader.nextInt();
-        Environnement env = new Environnement(n, n, n2, n2, nbAgents, k_plus, k_moins, 10, 1,tauxErreur);
+        int n = 50;
+        int n2 = 200;
+        int nbAgents = 20;
+        int nbPas = 1;
+        double k_plus = 0.1;
+        double k_moins = 0.3;
+        double tauxErreur = 0.0;
+        int nbIterations = 1000000;
+
+        while(true){
+            try {
+                System.out.println("Entrer la largeur et la longueur de la grille");
+                n = reader.nextInt();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while (true){
+            try {
+                System.out.println("Entrer le nombre d'objets A et B");
+                n2 = reader.nextInt();
+                break;
+            }catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while(true){
+            try {
+                System.out.println("Entrer le nombre d'agents");
+                nbAgents = reader.nextInt();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while(true){
+            try {
+                System.out.println("Entrer le nombre de pas");
+                nbPas = reader.nextInt();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while(true){
+            try {
+                System.out.println("Entrer la valeur de k plus (avec virgule)");
+                k_plus = reader.nextDouble();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while(true){
+            try {
+                System.out.println("Entrer la valeur de k moins (avec virgule)");
+                k_moins = reader.nextDouble();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while(true){
+            try {
+                System.out.println("Entrer le taux d'erreur (avec virgule)");
+                tauxErreur = reader.nextDouble();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+        while(true){
+            try {
+                System.out.println("Entrer le nombre d'itérations");
+                nbIterations = reader.nextInt();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+
+
+
+        Environnement env = new Environnement(n, n, n2, n2, nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur);
         System.out.println(env);
         JFrame frame = new JFrame("Grille");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

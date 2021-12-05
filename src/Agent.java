@@ -24,9 +24,11 @@ public class Agent {
 
     public void action() { //action de l'agent
         Random rand = new Random();
-        ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this, pas); //appel à l'environnement
-        int dir = rand.nextInt(directions.size());
-        this.deplacer(directions.get(dir)); //déplacement
+        for(int i=0; i<pas;i++){
+            ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this); //appel à l'environnement
+            int dir = rand.nextInt(directions.size());
+            this.deplacer(directions.get(dir)); //déplacement
+        }
         if (this.object == "") { //action prise ou dépot selon objet porté
             this.prise();
         } else {
@@ -35,9 +37,8 @@ public class Agent {
     }
 
     public void deplacer(Direction direction) { //déplacement
-        for(int i=0; i<pas;i++){
-            this.environnement.deplacement(this, direction);
-        }
+        this.environnement.deplacement(this, direction);
+
     }
 
     public void prise() { //action prise
@@ -70,12 +71,11 @@ public class Agent {
         for (int i = 0; i < memoire.size(); i++) { //calcul de la fréquence de l'objet en paramètre dans la mémoire
             if (memoire.toArray()[i] == object) {
                 nbObj++;
-            }
-            else if(memoire.toArray()[i] != "0"){
+            } else if (memoire.toArray()[i] != "0") {
                 nbObjOpp++; //calcul de la fréquence de l'objet opposé en paramètre dans la mémoire pour ajouter le taux d'erreur
             }
         }
-        double res = (double) nbObj +  (double) nbObjOpp*this.environnement.getTauxErreur();
+        double res = (double) nbObj + (double) nbObjOpp * this.environnement.getTauxErreur();
         return res / (double) memoire.size();
     }
 

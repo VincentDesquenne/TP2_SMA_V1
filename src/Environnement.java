@@ -55,10 +55,10 @@ public class Environnement extends JPanel{
 
     }
 
-    public ArrayList<Direction> perceptionSeDeplacer(Agent agent, int pas) { //réponse de l'environnement à l'agent pour le déplacement
+    public ArrayList<Direction> perceptionSeDeplacer(Agent agent) { //réponse de l'environnement à l'agent pour le déplacement
         int[] coord = this.agents.get(agent);
         //this.grid[coord[0]][coord[1]] = "0";
-        return this.possibleMoves(agent, coord, pas); //renvoie les déplacements possibles
+        return this.possibleMoves(agent, coord); //renvoie les déplacements possibles
     }
 
     public String perceptionPrise(Agent agent) { //réponse de l'environnement à l'agent pour la prise d'objet
@@ -71,25 +71,25 @@ public class Environnement extends JPanel{
         return this.grid[coord[0]][coord[1]]; //renvoie l'objet présent sur la case de l'agent
     }
 
-    public ArrayList<Direction> possibleMoves(Agent agent, int[] coord, int pas) { //fonctions qui détermine les déplacements possibles de l'agent
+    public ArrayList<Direction> possibleMoves(Agent agent, int[] coord) { //fonctions qui détermine les déplacements possibles de l'agent
         ArrayList<Direction> directions = new ArrayList<>();
-        if (coord[0] >= pas) {
+        if (coord[0] >= 1) {
             directions.add(Direction.UPPER);
-            if (coord[1] >= pas) {
+            if (coord[1] >= 1) {
                 directions.add(Direction.UPPER_LEFT);
                 directions.add(Direction.LEFT);
             }
-            if (coord[1] <= this.grid[0].length - (pas + 1)) {
+            if (coord[1] <= this.grid[0].length - 2) {
                 directions.add(Direction.UPPER_RIGHT);
                 directions.add(Direction.RIGHT);
             }
         }
-        if (coord[0] <= this.grid.length - (pas + 1)) {
+        if (coord[0] <= this.grid.length - 2) {
             directions.add(Direction.LOWER);
-            if (coord[1] <= this.grid[0].length - (pas + 1)) {
+            if (coord[1] <= this.grid[0].length - 2) {
                 directions.add(Direction.LOWER_RIGHT);
             }
-            if (coord[1] >= pas) {
+            if (coord[1] >= 1) {
                 directions.add(Direction.LOWER_LEFT);
             }
         }
