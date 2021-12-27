@@ -16,7 +16,7 @@ public class Main extends JPanel {
         double tauxErreur = 0.0;
         int nbIterations = 1000000;
 
-        while(true){
+        /*while(true){
             try {
                 System.out.println("Entrer la largeur et la longueur de la grille");
                 n = reader.nextInt();
@@ -102,11 +102,11 @@ public class Main extends JPanel {
                 System.out.println("Format non valide");
                 reader.nextLine();
             }
-        }
+        }*/
 
 
 
-        Environnement env = new Environnement(n, n, n2, n2, nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur);
+        Environnement env = new Environnement(n, n, n2, n2, 200,  nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur, 5);
         System.out.println(env);
         JFrame frame = new JFrame("Grille");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
