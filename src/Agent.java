@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Random;
@@ -16,9 +17,6 @@ public class Agent {
     private int[] coordSignal;
     private boolean signalEmis;
     private boolean attendre;
-    private Agent agentAide;
-    private Direction prochaineDirection;
-    private int compteurSignal = 0;
 
     public Agent(double k_plus, double k_moins, int pas, int taille, int dSignal, Environnement environnement) {
         this.k_plus = k_plus;
@@ -32,40 +30,51 @@ public class Agent {
         this.signalEmis = false;
         this.signalRecu = false;
         this.attendre = false;
-        this.coordSignal = new int[2];
-        this.prochaineDirection = null;
     }
 
     public void action() { //action de l'agent
         Random rand = new Random();
         for (int i = 0; i < pas; i++) {
             if (!attendre) {
-                if (!this.signalRecu) {
-                    ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this); //appel à l'environnement
+                ArrayList<Direction> directions = this.environnement.perceptionSeDeplacer(this); //appel à l'environnement
+                if (this.environnement.getPheromoneAgent(this) == 0.0 || this.object != "") {
                     int dir = rand.nextInt(directions.size());
                     this.deplacer(directions.get(dir)); //déplacement
-                    if (environnement.getAgentsObjetC().containsKey(this)) {
-                        environnement.getAgentsObjetC().get(this).setProchaineDirection(directions.get(dir));
-                    }
                 } else {
-                    this.deplacerVersSignal();
+                    if(Math.random() <= this.environnement.getPheromoneAgent(this)){
+                        this.deplacerVersSignal(directions);
+                    } else {
+                        int dir = rand.nextInt(directions.size());
+                        this.deplacer(directions.get(dir));
+                    }
                 }
             }
         }
-
         if (this.object == "") { //action prise ou dépot selon objet porté
             this.prise();
         } else {
             this.depot();
         }
+
+        if (signalEmis) {
+            if (this.environnement.getPheromoneAgent(this) < 0.10) {
+                this.environnement.setMarquageAgent(this, false);
+                this.attendre = false;
+                this.environnement.stopSignal(this, dSignal);
+            }
+        }
+
+
+
+
     }
 
     public void deplacer(Direction direction) { //déplacement
         this.environnement.deplacement(this, direction);
     }
 
-    public void deplacerVersSignal() {
-        this.environnement.cheminVersSignal(this, coordSignal);
+    public void deplacerVersSignal(ArrayList<Direction> directions) {
+        this.environnement.cheminVersSignal(this, directions);
     }
 
     public void prise() { //action prise
@@ -79,36 +88,30 @@ public class Agent {
                     this.environnement.prise(this); //action de prise de l'objet
                 }
             } else {
-                if (this.environnement.getMarquageAgent(this) && this.environnement.getAgentsObjetC().get(this) != null) {
-                    this.object = object;
-                    this.environnement.prise(this);
-                    this.attendre = false;
-                    this.environnement.getAgentsObjetC().get(this).setAttendre(false);
-                    this.environnement.setMarquageAgent(this, false);
-                    this.signalRecu = false;
-                    this.compteurSignal = 0;
-                } else {
-                    //if(!signalEmis && compteurSignal < 10){
-                        this.coordSignal[0] = this.environnement.perceptionPos(this)[0];
-                        this.coordSignal[1] = this.environnement.perceptionPos(this)[1];
-                        this.signalEmis = this.emmettreSignal();
-                        this.environnement.setMarquageAgent(this, signalEmis);
-                        this.attendre = true;
-                        compteurSignal++;
-                    /*} else {
-                        this.environnement.setMarquageAgent(this, false);
+                if (this.environnement.getMarquageAgent(this)) {
+                    double f = this.calculerFV2(object); //calcul de F
+                    double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2); //calcul de la probabilité de prise
+                    if (Math.random() <= pPrise) {
+                        this.object = object;
+                        this.environnement.prise(this);
                         this.attendre = false;
-                        this.compteurSignal = 0;
-                    }*/
+                        this.environnement.setMarquageAgent(this, false);
+                        this.signalRecu = false;
+                        this.environnement.stopSignal(this, dSignal);
+                    }
+                } else {
+                    this.emmettreSignal();
+                    this.environnement.setMarquageAgent(this, true);
+                    this.attendre = true;
+                    this.signalEmis = true;
                 }
             }
         }
-        if(this.object == "C")System.out.println("objet : " + this.object);
 
     }
 
-    public boolean emmettreSignal() {
-        return this.environnement.signal(this, this.dSignal);
+    public void emmettreSignal() {
+        this.environnement.signal(this, this.dSignal);
     }
 
     public void depot() { //action depot
@@ -118,14 +121,6 @@ public class Agent {
             double pDepot = Math.pow(f / (this.k_moins + f), 2); //calcul de la probabilité de dépot
             if (Math.random() <= pDepot) {
                 this.environnement.depot(this, this.object); //action de dépot
-                if (this.object == "C" && this.environnement.getAgentsObjetC().get(this) != null) {
-                    this.environnement.getAgentsObjetC().get(this).setProchaineDirection(null);
-                    this.setProchaineDirection(null);
-                    this.environnement.getAgentsObjetC().remove(this.environnement.getAgentsObjetC().get(this));
-                    this.environnement.getAgentsObjetC().remove(this);
-                    System.out.println("depôt objet : " + this.object);
-
-                }
                 this.object = "";
 
             }
@@ -220,13 +215,7 @@ public class Agent {
         this.coordSignal = coordSignal;
     }
 
-    public Agent getAgentAide() {
-        return agentAide;
-    }
 
-    public void setAgentAide(Agent agentAide) {
-        this.agentAide = agentAide;
-    }
 
     public boolean isAttendre() {
         return attendre;
@@ -236,13 +225,7 @@ public class Agent {
         this.attendre = attendre;
     }
 
-    public Direction getProchaineDirection() {
-        return prochaineDirection;
-    }
 
-    public void setProchaineDirection(Direction prochaineDirection) {
-        this.prochaineDirection = prochaineDirection;
-    }
 
     public String getObject() {
         return object;

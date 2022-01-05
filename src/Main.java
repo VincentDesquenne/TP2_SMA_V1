@@ -14,7 +14,7 @@ public class Main extends JPanel {
         double k_plus = 0.1;
         double k_moins = 0.3;
         double tauxErreur = 0.0;
-        int nbIterations = 1000000;
+        int nbIterations = 2000000;
 
         /*while(true){
             try {
@@ -106,7 +106,7 @@ public class Main extends JPanel {
 
 
 
-        Environnement env = new Environnement(n, n, n2, n2, 200,  nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur, 5);
+        Environnement env = new Environnement(n, n, n2, n2, 200,  nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur, 2, 0.01, 1);
         System.out.println(env);
         JFrame frame = new JFrame("Grille");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,9 +124,9 @@ public class Main extends JPanel {
                 agent.action();
                 frame.repaint();
             }
+            //System.out.println(env.toStringPheromone());
+            env.evaporation();
         }
         System.out.println(env);
-
-
     }
 }

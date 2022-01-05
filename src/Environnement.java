@@ -5,23 +5,28 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Environnement extends JPanel{
+public class Environnement extends JPanel {
     private String[][] grid;
     private HashMap<Agent, int[]> agents = new HashMap<>();
     private double tauxErreur;
     private HashMap<Agent, Agent> agentsObjetC = new HashMap<>();
     private boolean[][] marquage;
     private String[][] gridAgent;
+    private double[][] pheromone;
+    private double r;
+    private int intensite;
 
-    public Environnement(int n, int m, int nbA, int nbB, int nbC, int nbAgents, double k_plus, double k_moins, int taille, int pas, double tauxErreur, int dSignal) {
+    public Environnement(int n, int m, int nbA, int nbB, int nbC, int nbAgents, double k_plus, double k_moins, int taille, int pas, double tauxErreur, int dSignal, double r, int intensite) {
         grid = new String[n][m];
         marquage = new boolean[n][m];
         gridAgent = new String[n][m];
+        pheromone = new double[n][m];
         for (int i = 0; i < n; i++) { //initialisation de la grille
             for (int j = 0; j < m; j++) {
                 grid[i][j] = "0";
                 marquage[i][j] = false;
                 gridAgent[i][j] = "0";
+                pheromone[i][j] = 0.0;
             }
         }
         this.tauxErreur = tauxErreur;
@@ -29,6 +34,8 @@ public class Environnement extends JPanel{
         int bGrid = 0;
         int cGrid = 0;
         int agents = 0;
+        this.r = r;
+        this.intensite = intensite;
         Random rand = new Random();
         int nAleatoire = 0;
         int mAleatoire = 0;
@@ -48,7 +55,7 @@ public class Environnement extends JPanel{
                 bGrid++;
             }
         }
-        while(cGrid != nbC) {
+        while (cGrid != nbC) {
             nAleatoire = rand.nextInt(n);
             mAleatoire = rand.nextInt(m);
             if (grid[nAleatoire][mAleatoire] == "0") {
@@ -160,6 +167,10 @@ public class Environnement extends JPanel{
                 newCoord[0] = coord[0];
                 newCoord[1] = coord[1] - 1;
                 break;
+            case NONE:
+                newCoord[0] = coord[0];
+                newCoord[1] = coord[1];
+                break;
         }
         this.gridAgent[coord[0]][coord[1]] = "0";
         this.gridAgent[newCoord[0]][newCoord[1]] = "A";
@@ -168,34 +179,58 @@ public class Environnement extends JPanel{
 
     }
 
-    public void cheminVersSignal(Agent agent, int[] coordSignal) { //modification de la grille après déplacement de l'agent
+    public void cheminVersSignal(Agent agent, ArrayList<Direction> directions) { //modification de la grille après déplacement de l'agent
         int[] coord = this.agents.get(agent);
-        if (coord[0] < coordSignal[0]) {
-            if(coord[1] < coordSignal[1]){
-                this.deplacement(agent, Direction.LOWER_RIGHT);
-            } else if(coord[1] > coordSignal[1]){
-                this.deplacement(agent, Direction.LOWER_LEFT);
-            } else {
-                this.deplacement(agent, Direction.LOWER);
-            }
-        } else if (coord[0] > coordSignal[0]) {
-            if(coord[1] < coordSignal[1]){
-                this.deplacement(agent, Direction.UPPER_RIGHT);
-            } else if(coord[1] > coordSignal[1]){
-                this.deplacement(agent, Direction.UPPER_LEFT);
-            } else {
-                this.deplacement(agent, Direction.UPPER);
-            }
-        } else {
-            if(coord[1] < coordSignal[1]){
-                this.deplacement(agent, Direction.RIGHT);
-            } else if(coord[1] > coordSignal[1]){
-                this.deplacement(agent, Direction.LEFT);
+        double bestIntensite = this.pheromone[coord[0]][coord[1]];
+        Direction bestDirection = Direction.NONE;
+        for (Direction direction : directions) {
+            switch (direction) {
+                case UPPER_LEFT:
+                    if (this.pheromone[coord[0] - 1][coord[1] - 1] > bestIntensite) {
+                        bestDirection = Direction.UPPER_LEFT;
+                    }
+                    break;
+                case UPPER:
+                    if (this.pheromone[coord[0] - 1][coord[1]] > bestIntensite) {
+                        bestDirection = Direction.UPPER;
+                    }
+                    break;
+                case UPPER_RIGHT:
+                    if (this.pheromone[coord[0] - 1][coord[1] + 1] > bestIntensite) {
+                        bestDirection = Direction.UPPER_RIGHT;
+                    }
+                    break;
+                case RIGHT:
+                    if (this.pheromone[coord[0]][coord[1] + 1] > bestIntensite) {
+                        bestDirection = Direction.RIGHT;
+                    }
+                    break;
+                case LOWER_RIGHT:
+                    if (this.pheromone[coord[0] + 1][coord[1] + 1] > bestIntensite) {
+                        bestDirection = Direction.LOWER_RIGHT;
+                    }
+                    break;
+                case LOWER:
+                    if (this.pheromone[coord[0] + 1][coord[1]] > bestIntensite) {
+                        bestDirection = Direction.LOWER;
+                    }
+                    break;
+                case LOWER_LEFT:
+                    if (this.pheromone[coord[0] + 1][coord[1] - 1] > bestIntensite) {
+                        bestDirection = Direction.LOWER_LEFT;
+                    }
+                    break;
+                case LEFT:
+                    if (this.pheromone[coord[0]][coord[1] - 1] > bestIntensite) {
+                        bestDirection = Direction.LEFT;
+                    }
+                    break;
             }
         }
+        this.deplacement(agent, bestDirection);
     }
 
-    public int[] perceptionPos(Agent agent){
+    public int[] perceptionPos(Agent agent) {
         int[] coord = this.agents.get(agent);
         return coord;
     }
@@ -212,17 +247,29 @@ public class Environnement extends JPanel{
                 agentHere = false;
                 tab[0] = i;
                 tab[1] = j;
-                for(int k=0; k<this.agents.values().size(); k++){
-                    if(Arrays.equals((int[])this.agents.values().toArray()[k],tab)){
+                for (int k = 0; k < this.agents.values().size(); k++) {
+                    if (Arrays.equals((int[]) this.agents.values().toArray()[k], tab)) {
                         agentHere = true;
                         break;
                     }
                 }
-                if(agentHere){
-                    res+= grid[i][j] + "a ";
+                if (agentHere) {
+                    res += grid[i][j] + "a ";
                 } else {
                     res += grid[i][j] + "  ";
                 }
+            }
+        }
+        return res;
+    }
+
+
+    public String toStringPheromone() {
+        String res = "Pheromone :";
+        for (int i = 0; i < pheromone.length; i++) {
+            res += "\n";
+            for (int j = 0; j < pheromone[0].length; j++) {
+                res += pheromone[i][j]+ " ";
             }
         }
         return res;
@@ -233,23 +280,27 @@ public class Environnement extends JPanel{
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(4));
         for (int i = 0; i < grid.length; i++) {
-            for(int j=0; j < grid[i].length; j++){
+            for (int j = 0; j < grid[i].length; j++) {
                 Dimension size = getSize();
-                int w = size.width ;
+                int w = size.width;
                 int h = size.height;
-                if(grid[i][j] == "A"){
+                if (pheromone[i][j] > 0.0) {
+                    g2d.setColor(new Color(255, 247, 0, (int) (pheromone[i][j] * 255)));
+                    int x = j * w / grid.length;
+                    int y = i * h / grid[0].length;
+                    g2d.fillRect(x, y, x, y);
+                }
+                if (grid[i][j] == "A") {
                     g2d.setColor(Color.red);
                     int x = j * w / grid.length;
                     int y = i * h / grid[0].length;
                     g2d.drawLine(x, y, x, y);
-                }
-                else if(grid[i][j] == "B"){
+                } else if (grid[i][j] == "B") {
                     g2d.setColor(Color.blue);
                     int x = j * w / grid.length;
                     int y = i * h / grid[0].length;
                     g2d.drawLine(x, y, x, y);
-                }
-                else if(grid[i][j] == "C"){
+                } else if (grid[i][j] == "C") {
                     g2d.setColor(Color.green);
                     int x = j * w / grid.length;
                     int y = i * h / grid[0].length;
@@ -259,11 +310,34 @@ public class Environnement extends JPanel{
         }
     }
 
-    public boolean signal(Agent agent, int dSignal){
+    public void signal(Agent agent, int dSignal) {
         int[] coord = this.agents.get(agent);
-        int intensite = 1 - 1/dSignal;
-        for(int i=1; i<=dSignal; i++){
-            for(Agent a : agents.keySet()){
+        this.pheromone[coord[0]][coord[1]] = intensite;
+        double attenuation = (double) intensite - (double) intensite / (double) dSignal;
+        for (int i = 1; i <= dSignal; i++) {
+            if (coord[0] - i >= 0) {
+                this.pheromone[coord[0] - i][coord[1]] = attenuation;
+                if (coord[1] - i >= 0) {
+                    this.pheromone[coord[0] - i][coord[1] - i] = attenuation;
+                }
+
+            }
+            if (coord[0] + i < this.pheromone.length - 1) {
+                this.pheromone[coord[0] + i][coord[1]] = attenuation;
+                if (coord[1] + i < this.pheromone[0].length - 1) {
+                    this.pheromone[coord[0] + i][coord[1] + i] = attenuation;
+                }
+            }
+            if (coord[1] - i >= 0) {
+                this.pheromone[coord[0]][coord[1] - i] = attenuation;
+            }
+            if (coord[1] + i < this.pheromone[0].length - 1) {
+                this.pheromone[coord[0]][coord[1] + i] = attenuation;
+            }
+
+            attenuation = attenuation - intensite / dSignal;
+        }
+            /*for(Agent a : agents.keySet()){
                 if(a != agent) {
                     if (this.agents.get(a)[0] + i == coord[0] || this.agents.get(a)[0] - i == coord[0] || this.agents.get(a)[0] == coord[0]) {
                         if (this.agents.get(a)[1] + i == coord[1] || this.agents.get(a)[1] - i == coord[1] || this.agents.get(a)[1] == coord[1]) {
@@ -277,10 +351,42 @@ public class Environnement extends JPanel{
                         }
                     }
                 }
+            }*/
+    }
+
+    public void stopSignal(Agent agent, int dSignal) {
+        int[] coord = this.agents.get(agent);
+        this.pheromone[coord[0]][coord[1]] = 0.0;
+        for (int i = 1; i <= dSignal; i++) {
+            if (coord[0] - i >= 0) {
+                this.pheromone[coord[0] - i][coord[1]] = 0.0;
+                if (coord[1] - i >= 0) {
+                    this.pheromone[coord[0] - i][coord[1] - i] = 0.0;
+                }
+
             }
-            intensite = intensite - 1/dSignal;
+            if (coord[0] + i < this.pheromone.length - 1) {
+                this.pheromone[coord[0] + i][coord[1]] = 0.0;
+                if (coord[1] + i < this.pheromone[0].length - 1) {
+                    this.pheromone[coord[0] + i][coord[1] + i] = 0.0;
+                }
+            }
+            if (coord[1] - i >= 0) {
+                this.pheromone[coord[0]][coord[1] - i] = 0.0;
+            }
+            if (coord[1] + i < this.pheromone[0].length - 1) {
+                this.pheromone[coord[0]][coord[1] + i] = 0.0;
+            }
+
         }
-        return false;
+    }
+
+    public void evaporation() {
+        for (int i = 0; i < this.pheromone.length; i++) {
+            for (int j = 0; j < this.pheromone[i].length; j++) {
+                this.pheromone[i][j] = this.pheromone[i][j] * (1 - r);
+            }
+        }
     }
 
 
@@ -320,6 +426,10 @@ public class Environnement extends JPanel{
         return marquage;
     }
 
+    public void setMarquage(boolean[][] marquage) {
+        this.marquage = marquage;
+    }
+
     public boolean getMarquageAgent(Agent agent) {
         int[] coord = this.agents.get(agent);
         return marquage[coord[0]][coord[1]];
@@ -330,7 +440,12 @@ public class Environnement extends JPanel{
         marquage[coord[0]][coord[1]] = etat;
     }
 
-    public void setMarquage(boolean[][] marquage) {
-        this.marquage = marquage;
+    public double getPheromoneAgent(Agent agent) {
+        int[] coord = this.agents.get(agent);
+        return pheromone[coord[0]][coord[1]];
+    }
+
+    public void setPheromone(double[][] pheromone) {
+        this.pheromone = pheromone;
     }
 }
