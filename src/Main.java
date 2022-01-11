@@ -14,84 +14,9 @@ public class Main extends JPanel {
         double k_plus = 0.1;
         double k_moins = 0.3;
         double tauxErreur = 0.0;
-        int nbIterations = 2000000;
-
-        /*while(true){
-            try {
-                System.out.println("Entrer la largeur et la longueur de la grille");
-                n = reader.nextInt();
-                break;
-            } catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
-
-        while (true){
-            try {
-                System.out.println("Entrer le nombre d'objets A et B");
-                n2 = reader.nextInt();
-                break;
-            }catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
-
-        while(true){
-            try {
-                System.out.println("Entrer le nombre d'agents");
-                nbAgents = reader.nextInt();
-                break;
-            } catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
-
-        while(true){
-            try {
-                System.out.println("Entrer le nombre de pas");
-                nbPas = reader.nextInt();
-                break;
-            } catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
-
-        while(true){
-            try {
-                System.out.println("Entrer la valeur de k plus (avec virgule)");
-                k_plus = reader.nextDouble();
-                break;
-            } catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
-
-        while(true){
-            try {
-                System.out.println("Entrer la valeur de k moins (avec virgule)");
-                k_moins = reader.nextDouble();
-                break;
-            } catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
-
-        while(true){
-            try {
-                System.out.println("Entrer le taux d'erreur (avec virgule)");
-                tauxErreur = reader.nextDouble();
-                break;
-            } catch(InputMismatchException e){
-                System.out.println("Format non valide");
-                reader.nextLine();
-            }
-        }
+        int nbIterations = 1000000;
+        int dSignal = 4;
+        double r = 0.1;
 
         while(true){
             try {
@@ -102,11 +27,31 @@ public class Main extends JPanel {
                 System.out.println("Format non valide");
                 reader.nextLine();
             }
-        }*/
+        }
+        while(true){
+            try {
+                System.out.println("Entrer la distance du signal");
+                dSignal = reader.nextInt();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
+        while(true){
+            try {
+                System.out.println("Entrer le taux r (avec virgule)");
+                r = reader.nextDouble();
+                break;
+            } catch(InputMismatchException e){
+                System.out.println("Format non valide");
+                reader.nextLine();
+            }
+        }
 
 
 
-        Environnement env = new Environnement(n, n, n2, n2, 200,  nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur, 2, 0.01, 1);
+        Environnement env = new Environnement(n, n, n2, n2, n2,  nbAgents, k_plus, k_moins, 10, nbPas,tauxErreur, dSignal, r, 1);
         System.out.println(env);
         JFrame frame = new JFrame("Grille");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,7 +69,6 @@ public class Main extends JPanel {
                 agent.action();
                 frame.repaint();
             }
-            //System.out.println(env.toStringPheromone());
             env.evaporation();
         }
         System.out.println(env);

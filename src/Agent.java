@@ -73,36 +73,36 @@ public class Agent {
         this.environnement.deplacement(this, direction);
     }
 
-    public void deplacerVersSignal(ArrayList<Direction> directions) {
+    public void deplacerVersSignal(ArrayList<Direction> directions) { //déplacement vers origine du signal
         this.environnement.cheminVersSignal(this, directions);
     }
 
     public void prise() { //action prise
         String object = this.environnement.perceptionPrise(this); //appel à l'environnement
-        if (object != "0") { //si la case contient un objet et n'est pas un objet C
-            if (object != "C") {
+        if (object != "0") { //si la case contient un objet
+            if (object != "C") { //si cet objet n'est pas un objet C
                 double f = this.calculerFV2(object); //calcul de F
                 double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2); //calcul de la probabilité de prise
                 if (Math.random() <= pPrise) {
                     this.object = object;
                     this.environnement.prise(this); //action de prise de l'objet
                 }
-            } else {
-                if (this.environnement.getMarquageAgent(this)) {
+            } else { //si cet objet est un objet C
+                if (this.environnement.getMarquageAgent(this)) { //si il a déjà été marqué
                     double f = this.calculerFV2(object); //calcul de F
                     double pPrise = Math.pow(this.k_plus / (this.k_plus + f), 2); //calcul de la probabilité de prise
                     if (Math.random() <= pPrise) {
                         this.object = object;
-                        this.environnement.prise(this);
-                        this.attendre = false;
-                        this.environnement.setMarquageAgent(this, false);
+                        this.environnement.prise(this); //2 agents sur l'objet, il peut etre porté
+                        this.attendre = false; //les agents peuvent bouger
+                        this.environnement.setMarquageAgent(this, false); //on enlève le marquage
                         this.signalRecu = false;
-                        this.environnement.stopSignal(this, dSignal);
+                        this.environnement.stopSignal(this, dSignal); //on arrete le signal
                     }
-                } else {
-                    this.emmettreSignal();
-                    this.environnement.setMarquageAgent(this, true);
-                    this.attendre = true;
+                } else { //si l'objet n'a pas déjà été marqué
+                    this.emmettreSignal(); //on crée un signal
+                    this.environnement.setMarquageAgent(this, true); //on marque la case
+                    this.attendre = true; //l'agent attend de l'aide
                     this.signalEmis = true;
                 }
             }
@@ -110,7 +110,7 @@ public class Agent {
 
     }
 
-    public void emmettreSignal() {
+    public void emmettreSignal() { //creation du signal
         this.environnement.signal(this, this.dSignal);
     }
 
@@ -141,7 +141,7 @@ public class Agent {
         return res / (double) memoire.size();
     }
 
-    public double calculerFV2(String object) { //calcul de F
+    public double calculerFV2(String object) { //calcul de F sans taux erreur
         int nbObj = 0;
         for (int i = 0; i < memoire.size(); i++) { //calcul de la fréquence de l'objet en paramètre dans la mémoire
             if (memoire.toArray()[i] == object) {

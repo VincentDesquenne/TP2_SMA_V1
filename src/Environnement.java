@@ -179,7 +179,7 @@ public class Environnement extends JPanel {
 
     }
 
-    public void cheminVersSignal(Agent agent, ArrayList<Direction> directions) { //modification de la grille après déplacement de l'agent
+    public void cheminVersSignal(Agent agent, ArrayList<Direction> directions) { //méthode retournant la meilleure direction pour un agent pour se rapprocher de l'origine du signal
         int[] coord = this.agents.get(agent);
         double bestIntensite = this.pheromone[coord[0]][coord[1]];
         Direction bestDirection = Direction.NONE;
@@ -310,7 +310,7 @@ public class Environnement extends JPanel {
         }
     }
 
-    public void signal(Agent agent, int dSignal) {
+    public void signal(Agent agent, int dSignal) { //méthode permettant de créer un signal sur une case et les cases voisines
         int[] coord = this.agents.get(agent);
         this.pheromone[coord[0]][coord[1]] = intensite;
         double attenuation = (double) intensite - (double) intensite / (double) dSignal;
@@ -337,24 +337,10 @@ public class Environnement extends JPanel {
 
             attenuation = attenuation - intensite / dSignal;
         }
-            /*for(Agent a : agents.keySet()){
-                if(a != agent) {
-                    if (this.agents.get(a)[0] + i == coord[0] || this.agents.get(a)[0] - i == coord[0] || this.agents.get(a)[0] == coord[0]) {
-                        if (this.agents.get(a)[1] + i == coord[1] || this.agents.get(a)[1] - i == coord[1] || this.agents.get(a)[1] == coord[1]) {
-                            //if(Math.random() < intensite) {
-                                a.setSignalRecu(true);
-                                a.setCoordSignal(coord);
-                                agentsObjetC.put(agent, a);
-                                agentsObjetC.put(a, agent);
-                                return true;
-                            //}
-                        }
-                    }
-                }
-            }*/
+
     }
 
-    public void stopSignal(Agent agent, int dSignal) {
+    public void stopSignal(Agent agent, int dSignal) { //méthode permettant d'arreter un signal
         int[] coord = this.agents.get(agent);
         this.pheromone[coord[0]][coord[1]] = 0.0;
         for (int i = 1; i <= dSignal; i++) {
@@ -381,7 +367,7 @@ public class Environnement extends JPanel {
         }
     }
 
-    public void evaporation() {
+    public void evaporation() { //méthode permettant de simuler l'évaporation des phéromones
         for (int i = 0; i < this.pheromone.length; i++) {
             for (int j = 0; j < this.pheromone[i].length; j++) {
                 this.pheromone[i][j] = this.pheromone[i][j] * (1 - r);
